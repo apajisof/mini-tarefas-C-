@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Dificulty extends StatelessWidget {
+class Difficulty extends StatelessWidget {
   final int dificultyLevel;
 
-  const Dificulty({super.key, required this.dificultyLevel});
+  const Difficulty({required this.dificultyLevel, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

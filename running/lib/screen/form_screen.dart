@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:running/data/task_inherited.dart';
 
 class FormScreen extends StatefulWidget {
-  // ignore: use_super_parameters
-  const FormScreen({Key? key}) : super(key: key);
+  const FormScreen({Key? key, required this.taskContext}) : super(key: key);
+
+  final BuildContext taskContext;
 
   @override
   State<FormScreen> createState() => _FormScreenState();
@@ -15,22 +17,36 @@ class _FormScreenState extends State<FormScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+  bool valueValidator(String? value) {
+    if (value != null && value.isEmpty) {
+      return true;
+    }
+    return false;
+  }
+
+  bool difficultyValidator(String? value) {
+    if (value!.isEmpty || int.parse(value) > 5 || int.parse(value) < 1) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Form Screen')),
+        appBar: AppBar(title: const Text('Nova Tarefa')),
         body: Center(
           child: SingleChildScrollView(
             child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black, width: 3),
-              ),
               height: 650,
               width: 375,
+              decoration: BoxDecoration(
+                color: Colors.black12,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(width: 3),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -38,17 +54,17 @@ class _FormScreenState extends State<FormScreen> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: nameController,
                       validator: (String? value) {
-                        if (value != null && value.isEmpty) {
-                          return 'Campo obrigatório';
+                        if (valueValidator(value)) {
+                          return 'Insira o nome da Tarefa';
                         }
                         return null;
                       },
+                      controller: nameController,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        labelText: 'Nome',
                         border: OutlineInputBorder(),
+                        hintText: 'Nome',
                         fillColor: Colors.white70,
                         filled: true,
                       ),
@@ -58,10 +74,8 @@ class _FormScreenState extends State<FormScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       validator: (value) {
-                        if (value!.isEmpty ||
-                            int.parse(value) > 5 ||
-                            int.parse(value) < 1) {
-                          return 'Insira uma dificuldade entre 1 e 5';
+                        if (difficultyValidator(value)) {
+                          return 'Insira um Dificuldade entre 1 e 5';
                         }
                         return null;
                       },
@@ -69,8 +83,8 @@ class _FormScreenState extends State<FormScreen> {
                       controller: difficultyController,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        labelText: 'Dificuldade',
                         border: OutlineInputBorder(),
+                        hintText: 'Dificuldade',
                         fillColor: Colors.white70,
                         filled: true,
                       ),
@@ -83,8 +97,8 @@ class _FormScreenState extends State<FormScreen> {
                         setState(() {});
                       },
                       validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'insira uma URL válida';
+                        if (valueValidator(value)) {
+                          return 'Insira um URL de Imagem!';
                         }
                         return null;
                       },
@@ -92,8 +106,8 @@ class _FormScreenState extends State<FormScreen> {
                       controller: imageController,
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        labelText: 'Imagem',
                         border: OutlineInputBorder(),
+                        hintText: 'Imagem',
                         fillColor: Colors.white70,
                         filled: true,
                       ),
@@ -105,7 +119,7 @@ class _FormScreenState extends State<FormScreen> {
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.blue, width: 3),
+                      border: Border.all(width: 2, color: Colors.blue),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -113,12 +127,11 @@ class _FormScreenState extends State<FormScreen> {
                         imageController.text,
                         errorBuilder: (
                           BuildContext context,
-                          Object error,
+                          Object exception,
                           StackTrace? stackTrace,
                         ) {
-                          return const Icon(Icons.error);
+                          return Image.asset('assets/images/nophoto.png');
                         },
-
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -126,18 +139,23 @@ class _FormScreenState extends State<FormScreen> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        print(nameController.text);
-                        print(difficultyController.text);
-                        print(imageController.text);
+                        // print(nameController.text);
+                        // print(difficultyController.text);
+                        // print(imageController.text);
+                        TaskInherited.of(widget.taskContext).newTask(
+                          nameController.text,
+                          imageController.text,
+                          int.parse(difficultyController.text),
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Adicionado com sucesso!'),
+                            content: Text('Criando uma nova Tarefa'),
                           ),
                         );
-                        Navigator.pop(context); 
+                        Navigator.pop(context);
                       }
                     },
-                    child: Text('Adicionar'),
+                    child: Text('Adicionar!'),
                   ),
                 ],
               ),
