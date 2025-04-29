@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:running/data/task_inherited.dart';
+import 'package:running/components/task.dart';
+import 'package:running/data/task_dao.dart';
 
 class FormScreen extends StatefulWidget {
-  const FormScreen({Key? key, required this.taskContext}) : super(key: key);
+  const FormScreen({super.key, required this.taskContext});
 
   final BuildContext taskContext;
 
@@ -25,8 +26,10 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   bool difficultyValidator(String? value) {
-    if (value!.isEmpty || int.parse(value) > 5 || int.parse(value) < 1) {
-      return true;
+    if (value != null && value.isEmpty) {
+      if (int.parse(value) > 5 || int.parse(value) < 1) {
+        return true;
+      }
     }
     return false;
   }
@@ -36,7 +39,9 @@ class _FormScreenState extends State<FormScreen> {
     return Form(
       key: _formKey,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Nova Tarefa')),
+        appBar: AppBar(
+          title: const Text('Nova Tarefa'),
+        ),
         body: Center(
           child: SingleChildScrollView(
             child: Container(
@@ -125,11 +130,8 @@ class _FormScreenState extends State<FormScreen> {
                       borderRadius: BorderRadius.circular(10),
                       child: Image.network(
                         imageController.text,
-                        errorBuilder: (
-                          BuildContext context,
-                          Object exception,
-                          StackTrace? stackTrace,
-                        ) {
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace? stackTrace) {
                           return Image.asset('assets/images/nophoto.png');
                         },
                         fit: BoxFit.cover,
@@ -142,11 +144,10 @@ class _FormScreenState extends State<FormScreen> {
                         // print(nameController.text);
                         // print(difficultyController.text);
                         // print(imageController.text);
-                        TaskInherited.of(widget.taskContext).newTask(
-                          nameController.text,
-                          imageController.text,
-                          int.parse(difficultyController.text),
-                        );
+                        TaskDao().save(Task(
+                            nameController.text,
+                            imageController.text,
+                            int.parse(difficultyController.text)));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Criando uma nova Tarefa'),
